@@ -48,6 +48,7 @@ public class LoginController {
         }
 
         session.setAttribute("username", userServiceModel.getUsername());
+        session.setAttribute("userId", userServiceModel.getId());
 
         modelAndView.setViewName("redirect:/home");
 
