@@ -9,6 +9,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class DocumentServiceImpl implements DocumentService {
 
@@ -52,5 +55,23 @@ public class DocumentServiceImpl implements DocumentService {
         return (document == null)
                 ? null
                 : modelMapper.map(document, DocumentServiceModel.class);
+    }
+
+    @Override
+    public List<DocumentServiceModel> findAllDocumentsByUserId(String userId) {
+        return documentRepository.findAllByUserId(userId).stream()
+                .map(document -> modelMapper.map(document, DocumentServiceModel.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean deleteByDocumentId(String id) {
+        try{
+            documentRepository.deleteById(id);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 }

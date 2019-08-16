@@ -15,16 +15,18 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Validator;
+import java.util.List;
 
 @Controller
-public class ScheduleController {
+public class DocumentController {
+    private static final String DOCUMENT_NOT_FOUND = "Document not fount!";
 
     private final Validator validator;
     private final ModelMapper modelMapper;
     private final DocumentService documentService;
 
     @Autowired
-    public ScheduleController(Validator validator,
+    public DocumentController(Validator validator,
                               ModelMapper modelMapper,
                               DocumentService documentService) {
         this.validator = validator;
@@ -39,7 +41,6 @@ public class ScheduleController {
         } else {
             modelAndView.setViewName("schedule");
         }
-
 
         return modelAndView;
     }
@@ -68,15 +69,55 @@ public class ScheduleController {
     }
 
     @GetMapping("/details/{id}")
-    public ModelAndView details(@PathVariable String id, ModelAndView modelAndView) {
-        DocumentServiceModel document = documentService.findByDocumentId(id);
+    public ModelAndView details(@PathVariable String id,
+                                HttpSession session,
+                                ModelAndView modelAndView) {
+        if (session.getAttribute("username") == null) {
+            modelAndView.setViewName("redirect:/login");
+        } else {
+            DocumentViewModel document = modelMapper
+                    .map(documentService.findByDocumentId(id), DocumentViewModel.class);
 
-        if (document == null) {
-            throw new IllegalArgumentException("Document not fount!");
+            if (document == null) {
+                throw new IllegalArgumentException(DOCUMENT_NOT_FOUND);
+            }
+
+            modelAndView.setViewName("details");
+            modelAndView.addObject("model", document);
+        }
+        return modelAndView;
+    }
+
+    @GetMapping("/print/{id}")
+    public ModelAndView print(HttpSession session,
+                              @PathVariable String id,
+                              ModelAndView modelAndView) {
+
+        if (session.getAttribute("username") == null) {
+            modelAndView.setViewName("redirect:/login");
+        } else {
+           DocumentViewModel documentViewModel = modelMapper
+                    .map(documentService.findByDocumentId(id), DocumentViewModel.class);
+
+            if (documentViewModel == null) {
+                throw new IllegalArgumentException(DOCUMENT_NOT_FOUND);
+            }
+
+            modelAndView.addObject("document", documentViewModel);
+            modelAndView.setViewName("print");
+        }
+        return modelAndView;
+    }
+
+    @PostMapping("/print/{id}")
+    public ModelAndView printConfirm(@PathVariable String id,
+                                     ModelAndView modelAndView) {
+
+        if (! documentService.deleteByDocumentId(id)) {
+            throw new IllegalArgumentException(DOCUMENT_NOT_FOUND);
         }
 
-        modelAndView.setViewName("details");
-        modelAndView.addObject("model", modelMapper.map(document, DocumentViewModel.class));
+        modelAndView.setViewName("redirect:/home");
 
         return modelAndView;
     }

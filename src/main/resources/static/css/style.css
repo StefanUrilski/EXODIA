@@ -13,3 +13,12 @@
 textarea {
     resize: none;
 }
+
+.home-doc {
+    width: 18%;
+    margin-bottom: 4%;
+}
+
+.home-doc-span {
+    margin-left: 2.5%;
+}
