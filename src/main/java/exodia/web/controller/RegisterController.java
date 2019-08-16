@@ -1,6 +1,5 @@
 package exodia.web.controller;
 
-import exodia.domain.config.Security;
 import exodia.domain.model.binding.UserRegisterBindingModel;
 import exodia.domain.model.service.UserServiceModel;
 import exodia.service.UserService;
@@ -11,6 +10,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpSession;
 import javax.validation.Validator;
 
 @Controller
@@ -29,8 +29,12 @@ public class RegisterController {
     }
 
     @GetMapping("/register")
-    public ModelAndView register(ModelAndView modelAndView) {
-        modelAndView.setViewName("register");
+    public ModelAndView register(HttpSession session, ModelAndView modelAndView) {
+        if (session.getAttribute("username") != null) {
+            modelAndView.setViewName("redirect:/home" );
+        } else {
+            modelAndView.setViewName("register");
+        }
 
         return modelAndView;
     }

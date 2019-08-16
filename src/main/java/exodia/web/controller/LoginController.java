@@ -27,8 +27,12 @@ public class LoginController {
     }
 
     @GetMapping("/login")
-    public ModelAndView login(ModelAndView modelAndView) {
-        modelAndView.setViewName("login");
+    public ModelAndView login(HttpSession session, ModelAndView modelAndView) {
+        if (session.getAttribute("username") != null) {
+            modelAndView.setViewName("redirect:/home");
+        } else {
+            modelAndView.setViewName("login");
+        }
 
         return modelAndView;
     }
@@ -53,9 +57,12 @@ public class LoginController {
     @GetMapping("/logout")
     public ModelAndView logout(HttpSession session,
                                ModelAndView modelAndView) {
-
-        session.invalidate();
-        modelAndView.setViewName("redirect:/");
+        if (session.getAttribute("username") == null) {
+            modelAndView.setViewName("redirect:/");
+        } else {
+            session.invalidate();
+            modelAndView.setViewName("redirect:/");
+        }
 
         return modelAndView;
     }
